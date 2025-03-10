@@ -34,6 +34,11 @@ public class APIController extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
         PrintWriter out = resp.getWriter();
         APIParam apiParam = new APIParam(prompt, model);
-        out.println(apiService.callAPI(apiParam));
+        try {
+            out.println(apiService.callAPI(apiParam));
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            out.println(e.getMessage());
+        }
     }
 }
