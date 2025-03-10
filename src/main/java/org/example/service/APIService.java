@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.example.model.APIParam;
 import org.example.model.ModelResponse;
+import org.example.model.ModelType;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,6 +20,8 @@ public class APIService {
     private final Dotenv dotenv = Dotenv.load();
     private final String groqToken;
     private final String togetherToken;
+    private final String groqGuide;
+    private final String togetherGuide;
 
     public static APIService getInstance() {
         return instance;
@@ -27,6 +30,8 @@ public class APIService {
     private APIService() {
         groqToken = dotenv.get("GROQ_KEY");
         togetherToken = dotenv.get("TOGETHER_KEY");
+        groqGuide = dotenv.get("GROQ_GUIDE");
+        togetherGuide = dotenv.get("TOGETHER_GUIDE");
     }
 
     public String callAPI(APIParam apiParam) throws Exception {
@@ -37,12 +42,12 @@ public class APIService {
             case GROQ -> {
                 url = "https://api.groq.com/openai/v1/chat/completions";
                 token = groqToken;
-                instruction = "간곡하게 말하오니 한글 쓰세요";
+                instruction = groqGuide;
             }
             case TOGETHER -> {
                 url = "https://api.together.xyz/v1/chat/completions";
                 token = togetherToken;
-                instruction = "제발 제발 한글 쓰세요";
+                instruction = togetherGuide;
             }
             default -> throw new Exception("Unsupported platform");
         }

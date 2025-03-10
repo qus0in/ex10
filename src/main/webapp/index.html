@@ -36,6 +36,8 @@
             });
             const json = await response.json();
             alert(JSON.stringify(json));
+            document.querySelector("" +
+                "#response").textContent = json.content;
         })
     </script>
 </body>
