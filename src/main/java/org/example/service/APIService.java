@@ -12,21 +12,33 @@ import java.net.http.HttpResponse;
 public class APIService {
     private static final APIService instance = new APIService();
     private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final Dotenv dotenv = Dotenv.load();
+    private final String groqToken;
+    private final String togetherToken;
 
     public static APIService getInstance() {
         return instance;
     }
 
     private APIService() {
-        Dotenv dotenv = Dotenv.load();
-        token = dotenv.get("GROQ_KEY");
+        groqToken = dotenv.get("GROQ_KEY");
+        togetherToken = dotenv.get("TOGETHER_KEY");
     }
 
-    String token;
-
     public String callAPI(APIParam apiParam) throws Exception {
-
-        String url = "https://api.groq.com/openai/v1/chat/completions";
+        String url;
+        String token;
+        switch (apiParam.model().platform) {
+            case GROQ -> {
+                url = "https://api.groq.com/openai/v1/chat/completions";
+                token = groqToken;
+            }
+            case TOGETHER -> {
+                url = "https://api.together.xyz/v1/chat/completions";
+                token = togetherToken;
+            }
+            default -> throw new Exception("Unsupported platform");
+        }
 
         String body = """
                 {
@@ -42,7 +54,7 @@ public class APIService {
                          ],
                          "model": "%s"
                        }
-                """.formatted(apiParam.prompt(), apiParam.model());
+                """.formatted(apiParam.prompt(), apiParam.model().name);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .POST(HttpRequest.BodyPublishers.ofString(body))

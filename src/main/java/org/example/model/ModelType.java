@@ -9,6 +9,6 @@ public enum ModelType {
         this.platform = platform;
     }
 
-    final String name;
-    final ModelPlatform platform;
+    public final String name;
+    public final ModelPlatform platform;
 }

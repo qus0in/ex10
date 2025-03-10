@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.model.APIParam;
+import org.example.model.ModelType;
 import org.example.service.APIService;
 
 import java.io.IOException;
@@ -29,7 +30,9 @@ public class APIController extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         // ?prompt=점메추&model=gpt
         String prompt = req.getParameter("prompt");
-        String model = req.getParameter("model");
+        String modelParam = req.getParameter("model");
+        ModelType model = ModelType.valueOf(modelParam);
+        // GROQ_LLAMA, TOGETHER_LLAMA
         resp.setContentType("application/json; application/json");
         resp.setCharacterEncoding("UTF-8");
         PrintWriter out = resp.getWriter();
