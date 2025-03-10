@@ -1,7 +1,9 @@
 package org.example.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.example.model.APIParam;
+import org.example.model.ModelResponse;
 
 import java.io.IOException;
 import java.net.URI;
@@ -28,14 +30,17 @@ public class APIService {
     public String callAPI(APIParam apiParam) throws Exception {
         String url;
         String token;
+        String instruction;
         switch (apiParam.model().platform) {
             case GROQ -> {
                 url = "https://api.groq.com/openai/v1/chat/completions";
                 token = groqToken;
+                instruction = "간곡하게 말하오니 한글 쓰세요";
             }
             case TOGETHER -> {
                 url = "https://api.together.xyz/v1/chat/completions";
                 token = togetherToken;
+                instruction = "제발 제발 한글 쓰세요";
             }
             default -> throw new Exception("Unsupported platform");
         }
@@ -45,7 +50,7 @@ public class APIService {
                          "messages": [
                            {
                              "role": "system",
-                             "content": "only korean character"
+                             "content": "%s"
                            },
                            {
                              "role": "user",
@@ -54,7 +59,7 @@ public class APIService {
                          ],
                          "model": "%s"
                        }
-                """.formatted(apiParam.prompt(), apiParam.model().name);
+                """.formatted(instruction, apiParam.prompt(), apiParam.model().name);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .POST(HttpRequest.BodyPublishers.ofString(body))
@@ -62,6 +67,14 @@ public class APIService {
                 .header("Content-Type", "application/json")
                 .build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.body();
+        String responseBody = response.body();
+        ObjectMapper objectMapper = new ObjectMapper();
+        ModelResponse modelResponse = objectMapper.readValue(responseBody, ModelResponse.class);
+        String content = modelResponse.choices().get(0).message().content();
+        return """
+            {
+                "content": "%s"
+            }
+        """.formatted(content);
     }
 }
