@@ -10,6 +10,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 public class APIService {
     private static final APIService instance = new APIService();
@@ -71,10 +73,8 @@ public class APIService {
         ObjectMapper objectMapper = new ObjectMapper();
         ModelResponse modelResponse = objectMapper.readValue(responseBody, ModelResponse.class);
         String content = modelResponse.choices().get(0).message().content();
-        return """
-            {
-                "content": "%s"
-            }
-        """.formatted(content);
+        Map<String, String> map = new HashMap<>();
+        map.put("content", content);
+        return objectMapper.writeValueAsString(map);
     }
 }

@@ -27,7 +27,15 @@
             // alert("폼폼 폼클린징");
             const prompt = document.querySelector("#prompt").value;
             const model = document.querySelector("#model").value;
-            alert(`${prompt} ${model}`);
+            // alert(`${prompt} ${model}`);
+
+            const response = await fetch(`./api?prompt=${prompt}&model=${model}`, {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+            const json = await response.json();
+            alert(JSON.stringify(json));
         })
     </script>
 </body>
